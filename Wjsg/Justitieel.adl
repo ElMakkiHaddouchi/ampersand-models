@@ -3,11 +3,20 @@ PURPOSE CONTEXT JustGegevens
 {+
 +}
 INCLUDE "Wetten.adl"        -- omdat we de structuur van de Nederlandse wetgeving nodig hebben.
+INCLUDE "Feitgegevens.adl"     -- 
+INCLUDE "Zaakgegevens.adl"     -- 
+INCLUDE "Persoongegevens.adl"  -- 
+
+ROLE ExecEngine MAINTAINS "Beslissing over een feit bij de juiste zaak opbergen"
+RULE "Beslissing over een feit bij de juiste zaak opbergen":
+   procesVerbaal;strafbaar;tav |- beslissing
+MEANING "Een beslissing ten aanzien van een feit heeft betrekking op de zaak waarin dat feit ten laste is gelegd."
+VIOLATION (TXT "{EX} InsPair;beslissing;Zaak;", SRC I, TXT ";Beslissing;", TGT I)
 
 RELATION justitieel[Zaak] [PROP]  -- Artt. 2-4 Bjsg
 
-ROLE ExecEngine MAINTAINS Art2BjsgIns, Art3aBjsgIns, Art3bBjsgIns, Art4BjsgIns, JustitiëleGegevensIns
-                        , Art2BjsgDel, Art3aBjsgDel, Art3bBjsgDel, Art4BjsgDel, JustitiëleGegevensDel
+ROLE ExecEngine MAINTAINS Art2BjsgIns, Art3aBjsgIns, Art3bBjsgIns, Art4BjsgIns, JustitieleGegevensIns
+                        , Art2BjsgDel, Art3aBjsgDel, Art3bBjsgDel, Art4BjsgDel, JustitieleGegevensDel
 
 RELATION art2Bjsg[Zaak] [PROP]  -- Art. 2 Bjsg
 PURPOSE RULE Art2BjsgIns
@@ -47,18 +56,18 @@ VIOLATION (TXT "{EX} InsPair;art4Bjsg;Zaak;", SRC I, TXT ";Zaak;", TGT I)
 RULE Art4BjsgDel : art4Bjsg |- procesVerbaal;(inBehandeling;V/\strafbaar;I[Overtreding];V)
 VIOLATION (TXT "{EX} DelPair;art4Bjsg;Zaak;", SRC I, TXT ";Zaak;", TGT I)
 
-PURPOSE RULE JustitiëleGegevensIns
+PURPOSE RULE JustitieleGegevensIns
 {+Artikelen 2 t/m 4 Bjsg bepalen welke zaken worden aangemerkt als justitiele gegevens.
 Uit deze zaken zijn slechts die gegevens justitieel, die in artt. 6 en 7 limitatief zijn opgesomd. +}
-RULE JustitiëleGegevensIns : art2Bjsg\/art3aBjsg\/art3bBjsg\/art4Bjsg |- justitieel
+RULE JustitieleGegevensIns : art2Bjsg\/art3aBjsg\/art3bBjsg\/art4Bjsg |- justitieel
 VIOLATION (TXT "{EX} InsPair;justitieel;Zaak;", SRC I, TXT ";Zaak;", TGT I)
-RULE JustitiëleGegevensDel : justitieel |- art2Bjsg\/art3aBjsg\/art3bBjsg\/art4Bjsg
+RULE JustitieleGegevensDel : justitieel |- art2Bjsg\/art3aBjsg\/art3bBjsg\/art4Bjsg
 VIOLATION (TXT "{EX} DelPair;justitieel;Zaak;", SRC I, TXT ";Zaak;", TGT I)
 
 -- De volgende regels gaan over Artikel 5, die bepaalt welke strafbeschikkingen als justitieel gegeven worden aangemerkt.
 RELATION justitieel[Beschikking] [PROP]  -- Artt. 5 Bjsg
-ROLE ExecEngine MAINTAINS Art5lid1BjsgIns, Art5lid2BjsgIns, JustitiëleBeschikkingenIns
-                        , Art5lid1BjsgDel, Art5lid2BjsgDel, JustitiëleBeschikkingenDel
+ROLE ExecEngine MAINTAINS Art5lid1BjsgIns, Art5lid2BjsgIns, JustitieleBeschikkingenIns
+                        , Art5lid1BjsgDel, Art5lid2BjsgDel, JustitieleBeschikkingenDel
 
 RELATION art5lid1Bjsg[Beschikking] [PROP]  -- Art. 5 lid 1 Bjsg
 PURPOSE RULE Art5lid1BjsgIns
@@ -82,12 +91,12 @@ RULE Art5lid2BjsgDel : art5lid2Bjsg |-
                        \/ (I[Beschikking]/\ogv;(regeling;bwb;'Algemene douanewet'                  ;V[BasisWettenBestand*Beschikking]/\artikel;'10:15';V[Artikel*Beschikking]))
 VIOLATION (TXT "{EX} DelPair;art5lid2Bjsg;Beschikking;", SRC I, TXT ";Beschikking;", TGT I)
 
-PURPOSE RULE JustitiëleGegevensIns
+PURPOSE RULE JustitieleGegevensIns
 {+Artikelen 2 t/m 4 Bjsg bepalen welke zaken worden aangemerkt als justitiele gegevens.
 Uit deze zaken zijn slechts die gegevens justitieel, die in artt. 6 en 7 limitatief zijn opgesomd. +}
-RULE JustitiëleBeschikkingenIns : art5lid1Bjsg\/art5lid2Bjsg |- justitieel
+RULE JustitieleBeschikkingenIns : art5lid1Bjsg\/art5lid2Bjsg |- justitieel
 VIOLATION (TXT "{EX} InsPair;justitieel;Beschikking;", SRC I, TXT ";Beschikking;", TGT I)
-RULE JustitiëleBeschikkingenDel : justitieel |- art5lid1Bjsg\/art5lid2Bjsg
+RULE JustitieleBeschikkingenDel : justitieel |- art5lid1Bjsg\/art5lid2Bjsg
 VIOLATION (TXT "{EX} DelPair;justitieel;Beschikking;", SRC I, TXT ";Beschikking;", TGT I)
 
 ENDCONTEXT

@@ -1,5 +1,5 @@
 CONTEXT JustGegevens
-INCLUDE "Verstrekkingen.xlsx"        -- Hierin zijn de regels over het verstrekken uit het Besluit justitiële en strafvorderlijke gegevens gecodificeerd.
+--INCLUDE "Verstrekkingen.xlsx"        -- Hierin zijn de regels over het verstrekken uit het Besluit justitiële en strafvorderlijke gegevens gecodificeerd.
 
 --CONCEPT Verstrekkingsgrond
 --CONCEPT Doel
