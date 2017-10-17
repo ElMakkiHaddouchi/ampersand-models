@@ -1,21 +1,36 @@
 CONTEXT "Login" IN ENGLISH LATEX
 -----------------------------------------------------------
 
-INTERFACE "Login": '_SESSION'[SESSION] cRud BOX <ROWSNL>
+INTERFACE "Login": '_SESSION'[SESSION] cRud BOX <HROWS>
    [ "Login" : I-sessionAccount;sessionAccount~ cRud BOX <HCOLS>
       [ "Userid": loginUserid cRUd
       , "Password": loginPassword crUd -- crUd is needed for Passwords
       ]
-   , "Register": I-sessionAccount;sessionAccount~ cRud BOX <HCOLS>
+   , "Registreer": I-sessionAccount;sessionAccount~ cRud BOX <HCOLS>
       [ "Studentnummer" : regStudentnummer cRUd
       , "Password" : regPassword1 crUd -- crUd is needed for Passwords
       , "(retype)" : regPassword2 crUd -- crUd is needed for Passwords
       , "Email" : regEmail cRUd
-      , "Create a new account" : regCreateAccount cRUd
+      , "Login" : I BOX <PropertyButton>
+                  [ disabled : I-(regPassword1;regPassword2~ /\ (regStudentnummer;regStudentnummer~\/regEmail;regEmail~) /\ regCreateAccount) cRud -- Only active if there are two equal passwords.
+                  , property : regCreateAccount cRUd
+                  ]
+      ]
+   , "Accountgegevens": regCreateAccount;sessionAccount cRUd COLS
+      [ "Userid": accUserid CRud
+      , "New password": accNewPassword crUd -- crUd is required for Passwords
+--    , "Organization": accOrg cRUd
+      , "Naam": accPerson cRUd
+      , "Roles": accAllowedRoles cRud
+      , "Default roles": accDefaultRoles cRud
+      , "Student number": accStudNr cRUd  -- This field is needed to allow a student to provide his or her own student number.
       ]
    , "Logout": I /\ sessionAccount;sessionAccount~ cRud BOX <ROWSNL>
       [ "Logout": I cRud BOX <HCOLS>
-         [ "Logout?": logoutRequest cRUd
+         [ "Logout?": I BOX <PropertyButton>
+                               [ disabled : I-I
+                               , property : logoutRequest cRUd
+                               ]
          , "UserID": sessionUserid cRud
 --       , "Organization": accOrg cRud
 --       , "Person": accPerson cRud
@@ -26,5 +41,28 @@ INTERFACE "Login": '_SESSION'[SESSION] cRud BOX <ROWSNL>
       ]
    ]
 
------------------------------------------------------------
+ROLE ExecEngine MAINTAINS autoLogin,createAccountOnStudentnr,createAccountOnEmail,equalPasswords
+RULE autoLogin : regCreateAccount;(regStudentnummer;accStudentnummer~\/regEmail;accEmail~) |- sessionAccount
+VIOLATION (TXT "{EX} InsPair;sessionAccount;SESSION;",  SRC I, TXT ";Account;", TGT I )
+
+RULE createAccountOnStudentnr : (I-sessionAccount;sessionAccount~);regStudentnummer |- V-accStudNr
+VIOLATION (TXT "{EX} NewStruct;Account"
+               ,TXT ";accStudNr;Account;_NEW;Studentnummer;", TGT I
+          )
+RULE createAccountOnEmail : (I-sessionAccount;sessionAccount~);regEmail |- V-accEmail
+VIOLATION (TXT "{EX} NewStruct;Account"
+               ,TXT ";accEmail;Account;_NEW;Emailaddress;", TGT I
+          )
+RULE equalPasswords : regPassword1~;regPassword2 |- I
+MESSAGE "Please type equal passwords (case sensitive)"
+RULE regPassword1/\regPassword2;(regStudentnummer;accStudentnummer~\/regEmail;accEmail~) |- accPassword
+VIOLATION (TXT "{EX} InsPair;accPassword;Account;",  SRC I, TXT ";Password;", TGT I
+          ,TXT "{EX} DelPair;regPassword1;SESSION;", SRC I, TXT ";Password;", TGT I
+          ,TXT "{EX} DelPair;regPassword2;SESSION;", SRC I, TXT ";Password;", TGT I
+          )
+RULE regPassword1/\regPassword2 |- sessionAccount
+VIOLATION (TXT "{EX} InsPair;sessionAccount;SESSION;", SRC I, TXT ";Account;", TGT I
+          ,TXT "{EX} DelPair;regPassword1;SESSION;",   SRC I, TXT ";Password;", TGT I
+          ,TXT "{EX} DelPair;regPassword2;SESSION;",   SRC I, TXT ";Password;", TGT I
+          )
 ENDCONTEXT
