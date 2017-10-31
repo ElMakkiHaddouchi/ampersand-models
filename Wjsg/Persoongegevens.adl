@@ -1,0 +1,45 @@
+CONTEXT JustGegevens IN DUTCH
+
+CONCEPT RechtsPersoon "een rechtspersoon is een organisatie als bedoeld in boek 2 van het Burgerlijk Wetboek, alsmede de daarmee gelijkgestelde organisaties als bedoeld in artikel 51, derde lid, van het Wetboek van Strafrecht." "Artikel 1 sub d Wjsg"
+
+PATTERN "PersoonGegevens"
+CLASSIFY NatPersoon ISA Persoon
+CLASSIFY RechtsPersoon ISA Persoon
+PURPOSE PATTERN "PersoonGegevens"
+{+Art. 6 Bjsg bepaalt welke gegevens met betrekking tot natuurlijke personen en rechtspersonen als justitiële gegevens worden aangemerkt.
++}
+
+RELATION geslachtsnaam[NatPersoon*Tekst]                         -- Artikel 6 lid 1 sub a Bjsg
+RELATION voorvoegsels[NatPersoon*Tekst]                          -- Artikel 6 lid 1 sub a Bjsg
+RELATION voornaam[NatPersoon*Tekst]                              -- Artikel 6 lid 1 sub b Bjsg
+RELATION adres[NatPersoon*Adres]                                 -- Artikel 6 lid 1 sub c Bjsg
+RELATION geboorteplaats[NatPersoon*Plaats] [UNI]                 -- Artikel 6 lid 1 sub d Bjsg
+RELATION geboorteland[NatPersoon*Land] [UNI]                     -- Artikel 6 lid 1 sub d Bjsg
+RELATION geboortedatum[NatPersoon*Datum] [UNI]                   -- Artikel 6 lid 1 sub e Bjsg
+RELATION geboortejaar[NatPersoon*Datum] [UNI]                    -- Artikel 6 lid 1 sub e Bjsg
+RELATION persoonsidentificerendNummer[NatPersoon*PIN]            -- Artikel 6 lid 1 sub f Bjsg
+RELATION nationaliteit[NatPersoon*Nationaliteit]                 -- Artikel 6 lid 1 sub g Bjsg
+RELATION naam[RechtsPersoon*Tekst]                               -- Artikel 6 lid 2 sub a Bjsg
+RELATION rechtsvorm[RechtsPersoon*Rechtsvorm] [UNI]              -- Artikel 6 lid 2 sub b Bjsg
+RELATION statutaireVestigingsplaats[RechtsPersoon*Plaats] [UNI]  -- Artikel 6 lid 2 sub c Bjsg
+RELATION feitelijkeVestigingsplaats[RechtsPersoon*Plaats]        -- Artikel 6 lid 2 sub d Bjsg
+RELATION adres[RechtsPersoon*Adres]                              -- Artikel 6 lid 2 sub d Bjsg
+RELATION land[RechtsPersoon*Land]                                -- Artikel 6 lid 2 sub d Bjsg
+RELATION handelsregisternummer[RechtsPersoon*Tekst]              -- Artikel 6 lid 2 sub e Bjsg
+ENDPATTERN
+
+INTERFACE Persoon : I[NatPersoon]
+BOX [ "geslachtsnaam" :  geslachtsnaam[NatPersoon*Tekst]                   -- Artikel 6 lid 1 sub a Bjsg
+    , "voorvoegsels" :   voorvoegsels[NatPersoon*Tekst]                    -- Artikel 6 lid 1 sub a Bjsg
+    , "voornaam" :       voornaam[NatPersoon*Tekst]                        -- Artikel 6 lid 1 sub b Bjsg
+    , "adres" :          adres[NatPersoon*Adres]                           -- Artikel 6 lid 1 sub c Bjsg
+    , "geboorteplaats" : geboorteplaats[NatPersoon*Plaats]                 -- Artikel 6 lid 1 sub d Bjsg
+    , "geboorteland" :   geboorteland[NatPersoon*Land]                     -- Artikel 6 lid 1 sub d Bjsg
+    , "geboortedatum" :  geboortedatum[NatPersoon*Datum]                   -- Artikel 6 lid 1 sub e Bjsg
+    , "geboortejaar" :   geboortejaar[NatPersoon*Datum]                    -- Artikel 6 lid 1 sub e Bjsg
+    , "persoonsidentificerendNummer" : persoonsidentificerendNummer[NatPersoon*PIN]      -- Artikel 6 lid 1 sub f Bjsg
+    , "nationaliteit" :  nationaliteit[NatPersoon*Nationaliteit]           -- Artikel 6 lid 1 sub g Bjsg
+    ]
+
+
+ENDCONTEXT

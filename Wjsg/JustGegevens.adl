@@ -14,8 +14,12 @@ INCLUDE "Justitieel.adl"       --
 INCLUDE "Verstrekkingen.adl"   -- omdat we de structuur van de regels ten aanzien van verstrekkingen.
 INCLUDE "BjsgArtikel4.adl"     -- voor de overtredingssoorten die als justitiële gegevens aangemerkt worden.
 INCLUDE "Berichten.adl"        -- omdat we de structuur van de Nederlandse wetgeving nodig hebben.
+INCLUDE "Uittreksel.adl"       -- definieert verstrekkingen ten behoeve van ketenpartners.
+INCLUDE "JustGegevensPop.xlsx"  -- 
 
 CONCEPT Sepot "Onder sepot wordt verstaan de beslissing van het openbaar ministerie tot niet vervolging of niet verdere vervolging van de zaak."
+
+REPRESENT Tekst TYPE BIGALPHANUMERIC -- Temporary for prototyping
 
 
 PATTERN "Bewijsmiddel"
@@ -26,9 +30,11 @@ MEANING "Documenten, die als justitiële of strafvorderlijke gegevens zijn opgen
 ENDPATTERN
 
 
-INTERFACE Menu : '_SESSION' BOX
-    [ rechtsgronden   : V[SESSION*RechtsGrond]
-    , zaken    : V[SESSION*Zaak];justitieel
+INTERFACE Zaken : '_SESSION' cRud BOX
+    [ zaken    : V[SESSION*Zaak] cRud
+      BOX [ Parketnummer : I cRud
+          , tenlastelegging : procesVerbaal;strafbaar;kwalificatie
+          ]
     ]
 
 INTERFACE Rechtsgrond : I[RechtsGrond] BOX
@@ -41,20 +47,26 @@ INTERFACE Rechtsgrond : I[RechtsGrond] BOX
     , aanwijzing : aanwijzing
     ]
 
+VIEW Zaak : Zaak ( parketnummer )
+
 PURPOSE INTERFACE JustitieleGegevens
 {+Om de justitiële gegevens van een specifieke zaak te bepalen hanteren we hetgeen in Artikel 7 Bjsg is vermeld.
 De analyse is gebaseerd op BWBR0016544-geldend op 15-09-2017.
 +}
-INTERFACE JustitieleGegevens : I[Zaak]/\justitieel
+INTERFACE JustitieleGegevens FOR JustidBeheerder : I[Zaak] cRud
 BOX [ Beslissingen : beslissing - nietVervolgd                                -- Artikel 7 lid 1 sub a Bjsg
-    , Parketnummer : parketnummer                                             -- Artikel 7 lid 1 sub b Bjsg
+      BOX [ "bepalingen" : bepaling
+          , "strafbepalingen" : strafbepaling
+          , "voorwaarden" : voorwaarde
+          ]
+    , Parketnummer : parketnummer CRud                                        -- Artikel 7 lid 1 sub b Bjsg
     , Parket : parket                                                         -- Artikel 7 lid 2 sub a Bjsg
     , "Proces-verbaal" : procesVerbaal
       BOX [ "Ontvangen op parket" : ontvangstParket;voorgedaan                -- Artikel 7 lid 2 sub b Bjsg
           , "in behandeling Hoge Raad" : inBehandelingPG;voorgedaan           -- Artikel 7 lid 2 sub c Bjsg
           ]
-    , "Strafbaar feit" : procesVerbaal;strafbaar
-      BOX [ strafbepalingen : tav;strafbepaling                               -- Artikel 7 lid 1 sub c Bjsg
+    , "Strafbaar feit" : procesVerbaal;strafbaar;(I[Feit]/\tav;strafbepaling;strafbepaling~;tav~)
+      BOX [ omschrijving : omschrijving                                       -- Artikel 7 lid 1 sub d Bjsg
           , kwalificatie : kwalificatie                                       -- Artikel 7 lid 1 sub d Bjsg
           , "maatschappelijke classificatie" : maatschappelijkeClassificatie  -- Artikel 7 lid 1 sub e Bjsg
           , datum : voorgedaan[Gebeurtenis*Datum]                             -- Artikel 7 lid 1 sub f Bjsg
@@ -69,11 +81,12 @@ BOX [ Beslissingen : beslissing - nietVervolgd                                --
           , "bij beschikking" : tav;I[Beschikking]                            -- Artikel 7 lid 1 sub h Bjsg
             BOX [ datum : datum
                 , "opgelegde straffen, maatregelen en aanwijzingen" : strafbepaling
-                    , "onherroepelijk per (datum)" : onherroepelijk
+                , "onherroepelijk per (datum)" : onherroepelijk
                 , "uitgevoerd per (datum)" : uitgevoerd
                 , "Art. 10, 11, of 12 tot (datum)" : gemerkt101112
                 ]
           ]
+    , "Strafbepaling(en)" : procesVerbaal;strafbaar;tav;strafbepaling                               -- Artikel 7 lid 1 sub c Bjsg
     , "voorlopige maatregel op grond van de WED" : beslissing;(I[Beslissing]/\ogv;regeling;bwb;'BWBR0002063';(ogv;regeling;bwb)~);maatregel                           -- Artikel 7 lid 1 sub i Bjsg
       BOX [ datum : maatregel~;datum
           , aanduiding : aanduiding
@@ -83,7 +96,7 @@ BOX [ Beslissingen : beslissing - nietVervolgd                                --
           , intrekking : intrekking
           , opheffing : opheffing
           ]
-    , "rechterlijke uitspraak" : beslissing;I[RechterlijkeUitspraak]          -- Artikel 7 lid 1 sub j Bjsg
+    , "rechterlijke uitspraken" : beslissing;I[RechterlijkeUitspraak]          -- Artikel 7 lid 1 sub j Bjsg
       BOX [ gerecht : gerecht
           , datum : datum
           , kwalificatie : tav~;kwalificatie
@@ -93,7 +106,7 @@ BOX [ Beslissingen : beslissing - nietVervolgd                                --
           , "vermoedelijke einde van een proeftijd" : maatregel;eindeProeftijd
           , "Art. 10, 11, of 12 tot (datum)" : gemerkt101112
           ]
-    , "ten uitvoer is gelegd" : beslissing;(I[RechterlijkeUitspraak]/\uitgevoerd;uitgevoerd~);maatregel  -- Artikel 7 lid 1 sub k Bjsg
+    , "ten uitvoer gelegde maatregelen" : beslissing;(I[RechterlijkeUitspraak]/\uitgevoerd;uitgevoerd~);maatregel  -- Artikel 7 lid 1 sub k Bjsg
       BOX [ "uitgevoerd per (datum)" : maatregel~;uitgevoerd
           , wijze : aanduiding
           , aangevangen : aanvang

@@ -13,7 +13,17 @@ RULE "Beslissing over een feit bij de juiste zaak opbergen":
 MEANING "Een beslissing ten aanzien van een feit heeft betrekking op de zaak waarin dat feit ten laste is gelegd."
 VIOLATION (TXT "{EX} InsPair;beslissing;Zaak;", SRC I, TXT ";Beslissing;", TGT I)
 
+PURPOSE RELATION justitieel[Zaak]
+{+Artikelen 2 t/m 4 Bjsg bepalen welke zaken worden aangemerkt als justitiele gegevens.
+Deze relatie wordt alleen automatisch gevuld en niet handmatig. +}
 RELATION justitieel[Zaak] [PROP]  -- Artt. 2-4 Bjsg
+PURPOSE RULE JustitieleGegevensIns
+{+Artikelen 2 t/m 4 Bjsg bepalen welke zaken worden aangemerkt als justitiele gegevens.
+Uit deze zaken zijn slechts die gegevens justitieel, die in artt. 6 en 7 limitatief zijn opgesomd. +}
+RULE JustitieleGegevensIns : art2Bjsg\/art3aBjsg\/art3bBjsg\/art4Bjsg |- justitieel
+VIOLATION (TXT "{EX} InsPair;justitieel;Zaak;", SRC I, TXT ";Zaak;", TGT I)
+RULE JustitieleGegevensDel : justitieel |- art2Bjsg\/art3aBjsg\/art3bBjsg\/art4Bjsg
+VIOLATION (TXT "{EX} DelPair;justitieel;Zaak;", SRC I, TXT ";Zaak;", TGT I)
 
 ROLE ExecEngine MAINTAINS Art2BjsgIns, Art3aBjsgIns, Art3bBjsgIns, Art4BjsgIns, JustitieleGegevensIns
                         , Art2BjsgDel, Art3aBjsgDel, Art3bBjsgDel, Art4BjsgDel, JustitieleGegevensDel
@@ -56,13 +66,6 @@ VIOLATION (TXT "{EX} InsPair;art4Bjsg;Zaak;", SRC I, TXT ";Zaak;", TGT I)
 RULE Art4BjsgDel : art4Bjsg |- procesVerbaal;(inBehandeling;V/\strafbaar;I[Overtreding];V)
 VIOLATION (TXT "{EX} DelPair;art4Bjsg;Zaak;", SRC I, TXT ";Zaak;", TGT I)
 
-PURPOSE RULE JustitieleGegevensIns
-{+Artikelen 2 t/m 4 Bjsg bepalen welke zaken worden aangemerkt als justitiele gegevens.
-Uit deze zaken zijn slechts die gegevens justitieel, die in artt. 6 en 7 limitatief zijn opgesomd. +}
-RULE JustitieleGegevensIns : art2Bjsg\/art3aBjsg\/art3bBjsg\/art4Bjsg |- justitieel
-VIOLATION (TXT "{EX} InsPair;justitieel;Zaak;", SRC I, TXT ";Zaak;", TGT I)
-RULE JustitieleGegevensDel : justitieel |- art2Bjsg\/art3aBjsg\/art3bBjsg\/art4Bjsg
-VIOLATION (TXT "{EX} DelPair;justitieel;Zaak;", SRC I, TXT ";Zaak;", TGT I)
 
 -- De volgende regels gaan over Artikel 5, die bepaalt welke strafbeschikkingen als justitieel gegeven worden aangemerkt.
 RELATION justitieel[Beschikking] [PROP]  -- Artt. 5 Bjsg

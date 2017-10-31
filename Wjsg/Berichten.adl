@@ -4,6 +4,9 @@ META "authors" "Stef Joosten"
 
 --THEMES Berichten
 
+REPRESENT Tijdstip TYPE DATETIME
+
+
 PATTERN Berichten
 PURPOSE PATTERN "Berichten"
 {+Een bericht heeft twee aspecten. Het heeft inhoud en gedraagt zich dientengevolge als document.
@@ -20,37 +23,37 @@ CLASSIFY Document ISA Bericht
 --------------
 -- Relaties --
 --------------
-aan :: Bericht * Persoon [TOT] PRAGMA "" "is gericht aan" ""
+RELATION aan[Bericht*Persoon] PRAGMA "" "is gericht aan" ""
 MEANING "Een bericht is gericht aan een persoon."
 PURPOSE RELATION aan[Bericht*Persoon] REF ""
 {+
 +}
 
-van :: Bericht *  Persoon [UNI,TOT] PRAGMA "" " is afkomstig van " ""
+RELATION van[Bericht*Persoon] [UNI] PRAGMA "" " is afkomstig van " ""
 MEANING "Een bericht is afkomstig van een persoon."
 PURPOSE RELATION van[Bericht*Persoon] REF ""
 {+
 +}
 
-verzonden :: Bericht -> Tijdstip PRAGMA "" "is verzonden op" ""
+RELATION verzonden[Bericht*Tijdstip] [UNI] PRAGMA "" "is verzonden op" ""
 MEANING "Een bericht is verzonden op een te bepalen tijdstip."
 PURPOSE RELATION verzonden[Bericht*Tijdstip] REF ""
 {+
 +}
 
-ontvangen :: Bericht *  Tijdstip [UNI] PRAGMA "" "is ontvangen op" ""
+RELATION ontvangen[Bericht*Tijdstip] [UNI] PRAGMA "" "is ontvangen op" ""
 MEANING "Een bericht is ontvangen op een te bepalen tijdstip."
 PURPOSE RELATION ontvangen[Bericht*Tijdstip] REF ""
 {+
 +}
 
-antwoordOp :: Bericht * Bericht PRAGMA "" "is het antwoord op" ""
+RELATION antwoordOp[Bericht*Bericht] PRAGMA "" "is het antwoord op" ""
 MEANING "Berichten kunnen het antwoord zijn op eerder verstuurde berichten."
 PURPOSE RELATION antwoordOp[Bericht*Bericht] REF ""
 {+ Om volgordelijkheid aan te tonen nemen berichten een referentie naar eerder verstuurde berichten op.
 +}
 
-gegevensbron :: Bericht * Bron PRAGMA "" "is afkomstig uit" ""
+RELATION gegevensbron[Bericht*Bron] PRAGMA "" "is afkomstig uit" ""
 MEANING "Elk bericht is afkomstig van een bepaalde bron."
 PURPOSE RELATION gegevensbron [Bericht*Bron] REF ""
 {+ Het systeem dat het bericht heeft samengesteld.

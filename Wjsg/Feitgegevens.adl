@@ -1,0 +1,63 @@
+CONTEXT JustGegevens IN DUTCH
+
+PATTERN "Feiten"
+CLASSIFY Misdrijf ISA Feit
+CLASSIFY Overtreding ISA Feit
+CLASSIFY Beschikking ISA Beslissing
+CLASSIFY Sepot ISA Beslissing
+CLASSIFY Beslissing ISA Gebeurtenis
+RELATION strafbaar[ProcesVerbaal*Feit]  -- Artikel 7 lid 1 sub c. Bjsg
+{- uitzoeken: wat is de juiste definitie van strafbaar feit. -}
+CLASSIFY Feit ISA Gebeurtenis
+{- 
+-}
+RELATION tav[Feit*Beslissing]
+MEANING "een feit waarover een beslissing genomen, c.q. een beschikking uitgevaardigd is"
+
+PURPOSE RELATION afdoeningOM[Feit*Beschikking]
+{+De gebeurtenis dat het openbaar ministerie een beslissing tot afdoening van de zaak heeft genomen,
+dient geregistreerd te worden.
++}
+RELATION afdoeningOM[Feit*Beschikking]  -- Artikel 3 lid a. Bjsg
+PURPOSE RELATION lageBoete[Feit*Beschikking]
+{+Als het OM uitsluitend een geldboete oplegt die minder dan € 100,– beloopt,
+dan wordt dit geregistreerd omdat deze boetes niet tot de justitiële gegevens behoren.
++}
+RELATION lageBoete[Feit*Beschikking]  -- Artikel 3 lid a. Bjsg
+MEANING "Het OM heeft uitsluitend een geldboete opgelegd die minder dan € 100,– beloopt."
+RELATION hogeBoete[Feit*Beschikking]  -- Artikel 3 lid a. Bjsg
+MEANING "Het OM heeft een geldboete opgelegd die € 100,– of meer beloopt."
+
+RELATION bepaling[Beslissing*Tekst]  -- Artikel 8 lid 1 sub b. Bjsg
+MEANING "de aan een beslissing verbonden bepalingen"
+RELATION strafbepaling[Beslissing*Tekst]  -- Artikel 7 lid 1 sub c,h. Bjsg
+MEANING "de strafbepalingen van het strafbare feit, de opgelegde straffen, maatregelen en aanwijzingen"
+
+RELATION omschrijving[Feit*Tekst] [UNI]  -- ?? alleen voor demo doeleinden.
+MEANING "de letterlijke tekst van een Feit"
+RELATION kwalificatie[Feit*Tekst] [UNI]  -- Artikel 7 lid 1 sub d. Bjsg
+RELATION maatschappelijkeClassificatie[Feit*Tekst] [UNI]  -- Artikel 7 lid 1 sub e. Bjsg
+RELATION voorgedaan[Gebeurtenis*Datum] [UNI]  -- Artikel 7 lid 1 sub f. Bjsg
+RELATION voorgedaan[Feit*Periode] [UNI]  -- Artikel 7 lid 1 sub f. Bjsg
+RELATION sepot[Feit*Sepot] [UNI]  -- Artikel 7 lid 1 sub g. Bjsg
+RELATION datum[Beslissing*Datum] [UNI]  -- Artikel 7 lid 1 sub g,h. Bjsg
+MEANING "de datum waarop een beslissing genomen, c.q. een beschikking uitgevaardigd is"
+RELATION sepotcode[Sepot*Sepotcode] [UNI]  -- Artikel 7 lid 1 sub g. Bjsg
+RELATION grond[Sepot*Tekst]  -- Artikel 7 lid 1 sub g. Bjsg
+RELATION voorwaarde[Beslissing*Tekst]  -- Artikel 7 lid 1 sub g. Bjsg
+MEANING "de bij de beslissing tot voorwaardelijk seponeren gestelde voorwaarden"
+RELATION voldaan[Sepot*Datum] [UNI]  -- Artikel 7 lid 1 sub g. Bjsg
+MEANING "de datum waarop aan alle gestelde voorwaarden is voldaan"
+RELATION onherroepelijk[Beslissing*Datum] [UNI]  -- Artikel 7 lid 1 sub h. Bjsg
+MEANING "de datum waarop waarop de strafbeschikking onherroepelijk is geworden"
+RELATION ogv[Beslissing*RechtsGrond]   -- Artikel 7 lid 1 sub h. Bjsg
+MEANING "een rechtsgrond waarop een beslissing is gebaseerd"
+RELATION uitgevoerd[Beslissing*Datum] [UNI]  -- Artikel 7 lid 1 sub h en k Bjsg
+MEANING "de datum waarop de beslissing volledig ten uitvoer is gelegd"
+RELATION wijze[Beslissing*Tekst] [UNI]  -- Artikel 7 lid 1 sub k Bjsg
+MEANING "de wijze waarop de beslissing ten uitvoer is gelegd"
+RELATION gemerkt101112[Beslissing*Datum] [UNI]  -- Artikel 7 lid 1 sub h en j. Bjsg
+MEANING "Als een datum bestaat in deze relatie, kan de strafbeschikking tot genoemde datum worden aangemerkt als een gegeven als bedoeld in de artikelen 10, 11 of 12 van de wet"
+ENDPATTERN
+
+ENDCONTEXT
