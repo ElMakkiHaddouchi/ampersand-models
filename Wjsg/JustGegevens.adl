@@ -26,11 +26,10 @@ PATTERN "Bewijsmiddel"
 CLASSIFY Beschikking ISA Document
 RELATION bewijsmiddel[Feit*Document]  -- zie Artikel 3 en 5 Bjsg
 MEANING "Documenten, die als justitiële of strafvorderlijke gegevens zijn opgenomen in het systeem, en als bewijs gelden voor enig feit, worden in het systeem aan dat feit gekoppeld."
-
 ENDPATTERN
 
 
-INTERFACE Zaken : '_SESSION' cRud BOX
+INTERFACE Zaken : "_SESSION" cRud BOX
     [ zaken    : V[SESSION*Zaak] cRud
       BOX [ Parketnummer : I cRud
           , tenlastelegging : procesVerbaal;strafbaar;kwalificatie
@@ -87,7 +86,7 @@ BOX [ Beslissingen : beslissing - nietVervolgd                                --
                 ]
           ]
     , "Strafbepaling(en)" : procesVerbaal;strafbaar;tav;strafbepaling                               -- Artikel 7 lid 1 sub c Bjsg
-    , "voorlopige maatregel op grond van de WED" : beslissing;(I[Beslissing]/\ogv;regeling;bwb;'BWBR0002063';(ogv;regeling;bwb)~);maatregel                           -- Artikel 7 lid 1 sub i Bjsg
+    , "voorlopige maatregel op grond van de WED" : beslissing;(I[Beslissing]/\ogv;regeling;bwb;"BWBR0002063";(ogv;regeling;bwb)~);maatregel                           -- Artikel 7 lid 1 sub i Bjsg
       BOX [ datum : maatregel~;datum
           , aanduiding : aanduiding
           , beëindiging : beeindiging

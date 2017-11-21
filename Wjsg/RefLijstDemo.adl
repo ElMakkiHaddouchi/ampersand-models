@@ -116,7 +116,7 @@ VIOLATION (TXT "{EX} NewStruct;Mutation"
 ENDPROCESS
 -}
 
-INTERFACE Geschiedenis FOR FAB : '_SESSION'[SESSION]
+INTERFACE Geschiedenis FOR FAB : "_SESSION"[SESSION]
 TABS[ "Referentielijsten" : V[SESSION*Referentielijst]
     ROWS[ Lijst : I
         , "" : refLijst~;(I /\ -deleted)
@@ -127,7 +127,7 @@ TABS[ "Referentielijsten" : V[SESSION*Referentielijst]
                 , pred : pred
                 , naam : mutNaam      
                 , mutGrond : mutGrond       
-                , status : (I /\ trace~;trace);V;'Current value'[TEXT] \/ (I /\ -(trace~;trace));V;'Archived value'[TEXT] 
+                , status : (I /\ trace~;trace);V;"Current value"[TEXT] \/ (I /\ -(trace~;trace));V;"Archived value"[TEXT] 
                 ]
             ]
         ]
@@ -141,7 +141,7 @@ TABS[ "Referentielijsten" : V[SESSION*Referentielijst]
                     , pred : pred
                     , naam : mutNaam      
                     , mutGrond : mutGrond       
-                    , status : (I /\ trace~;trace);V;'Deleted value'[TEXT] \/ (I /\ -(trace~;trace));V;'Archived value'[TEXT] <StatusIcon>
+                    , status : (I /\ trace~;trace);V;"Deleted value"[TEXT] \/ (I /\ -(trace~;trace));V;"Archived value"[TEXT] <StatusIcon>
                     ]
               ]
         ]
