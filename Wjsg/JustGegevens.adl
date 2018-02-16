@@ -24,44 +24,6 @@ INCLUDE "BjsgArtikel4.adl"  -- voor de overtredingssoorten die als justitiële g
 
 CONCEPT Sepot "Onder sepot wordt verstaan de beslissing van het openbaar ministerie tot niet vervolging of niet verdere vervolging van de zaak."
 
-PURPOSE PATTERN "Zaken"
-{+Het systeem JDS zien we als een opslagstructuur van zaken en feiten.
-Dit hoofdstuk werkt de structuur van zaken uit, ten behoeve van justitiële documentatie.
-+}
-PATTERN "Zaken"
-RELATION justitiabele[Zaak*Persoon]
-RELATION parket[Zaak*Parket]  -- Artikel 7 lid 2 sub a. Bjsg
-MEANING "het arrondissementsparket of ressortsparket dat de zaak in behandeling heeft genomen"
-RELATION ontvangstParket[ProcesVerbaal*Gebeurtenis] [INJ]  -- zie Artikel 7 lid 2 sub b. Bjsg
-PURPOSE RELATION inBehandeling[ProcesVerbaal*Gebeurtenis]
-{+Met betrekking tot de in Artikel 4 lid 2 Bjsg genoemde overtredingen worden de in de artikelen 6 en 7 Bjsg vermelde gegevens van zaken als justitiële gegevens aangemerkt nadat het proces-verbaal door het openbaar ministerie in behandeling is genomen.
-Om die reden dient het in behandeling nemen van een proces verbaal door het OM zonder uitstel als gebeurtenis geregistreerd te worden.
-+}
-RELATION inBehandeling[ProcesVerbaal*Gebeurtenis] [UNI]  -- zie Artikel 4 lid 1. Bjsg
-MEANING "de datum waarop het openbaar ministerie de zaak in behandeling heeft genomen"
-RELATION inBehandelingPG[ProcesVerbaal*Gebeurtenis] [UNI]  -- zie Artikel 7 lid 2 sub c. Bjsg
-MEANING "de datum waarop de procureur-generaal bij de Hoge Raad op grond van artikel 76 van de Wet op de rechterlijke organisatie de zaak in behandeling heeft genomen"
-PURPOSE RELATION procesVerbaal[Zaak*ProcesVerbaal]
-{+Het systeem registreert de relatie tussen een proces-verbaal en de zaak die daaruit voortvloeit.
-Zodra deze relatie is gelegd is er een zaak en geldt (voor het systeem) dat het openbaar ministerie het proces-verbaal in behandeling heeft genomen.
-+}
-CLASSIFY ProcesVerbaal ISA Document
-RELATION procesVerbaal[Zaak*ProcesVerbaal] [INJ]  -- zie Artikel 4 lid 1 Bjsg
-PRAGMA "Het OM heeft zaak " " op basis van PV " " in behandeling genomen."
-MEANING "Van alle zaken, die het OM in behandeling neemt, registreert het systeem op basis van welk PV dit is geschied."
-RELATION inBehandeling[ProcesVerbaal*Gebeurtenis] [UNI]  -- zie Artikel 4 lid 1. Bjsg
-MEANING "de datum waarop het openbaar ministerie de zaak in behandeling heeft genomen"
-PURPOSE RELATION procesVerbaal[Zaak*ProcesVerbaal]
-{+Zodra de relatie tussen een proces-verbaal en de zaak is gelegd, geldt (voor het systeem) dat het openbaar ministerie het proces-verbaal in behandeling heeft genomen.
-Indien nodig wordt deze gebeurtenis geregistreerd en aan het proces-verbaal gekoppeld via de relatie inBehandeling, met de transactiedatum als datum van inbehandelingname.
-+}
-RULE InBehandelingname : procesVerbaal~;procesVerbaal/\I |- inBehandeling;inBehandeling~
-VIOLATION ( TXT "{EX} NewStruct;Gebeurtenis"
-          , TXT ";inBehandeling;ProcesVerbaal;", SRC I, TXT ";Gebeurtenis;_NEW"
-          , TXT ";voorgedaan;Gebeurtenis;_NEW;Datum;{php}date(DATE_ISO8601)"
-          )
-
-ENDPATTERN
 
 
 PURPOSE PATTERN "Beslissingen"
@@ -122,6 +84,9 @@ RELATION bepaling[Beslissing*Tekst]  -- Artikel 8 lid 1 sub b. Bjsg
 MEANING "de aan een beslissing verbonden bepalingen"
 RELATION strafbepaling[Beslissing*Tekst]  -- Artikel 7 lid 1 sub c,h. Bjsg
 MEANING "de strafbepalingen van het strafbare feit, de opgelegde straffen, maatregelen en aanwijzingen"
+
+RELATION omschrijving[Feit*Tekst] [UNI]  -- ?? alleen voor demo doeleinden.
+MEANING "de letterlijke tekst van een Feit"
 RELATION kwalificatie[Feit*Tekst] [UNI]  -- Artikel 7 lid 1 sub d. Bjsg
 RELATION maatschappelijkeClassificatie[Feit*Tekst] [UNI]  -- Artikel 7 lid 1 sub e. Bjsg
 RELATION voorgedaan[Gebeurtenis*Datum] [UNI]  -- Artikel 7 lid 1 sub f. Bjsg
@@ -167,7 +132,7 @@ INTERFACE Rechtsgrond : I[RechtsGrond] BOX
 
 VIEW Zaak : Zaak ( parketnummer )
 
-PURPOSE INTERFACE JustitieleGegevens
+PURPOSE INTERFACE JustitiëleGegevens
 {+Om de justitiële gegevens van een specifieke zaak te bepalen hanteren we hetgeen in Artikel 7 Bjsg is vermeld.
 De analyse is gebaseerd op BWBR0016544-geldend op 15-09-2017.
 +}
