@@ -5,27 +5,146 @@ Toegang tot justitiële gegevens is uitsluitend voorbehouden aan personen die on
 Welke gegevens justitieel zijn wordt in hfst. 2 afdeling 1 van de Bjsg bepaald.
 +}
 
-INCLUDE "Persoongegevens.adl"  -- 
-INCLUDE "Feitgegevens.adl"     -- 
-INCLUDE "Zaakgegevens.adl"     -- 
-INCLUDE "Retentie.adl"         -- 
-INCLUDE "Wetten.adl"           -- 
-INCLUDE "Justitieel.adl"       -- 
-INCLUDE "Verstrekkingen.adl"   -- omdat we de structuur van de regels ten aanzien van verstrekkingen.
-INCLUDE "BjsgArtikel4.adl"     -- voor de overtredingssoorten die als justitiële gegevens aangemerkt worden.
-INCLUDE "Berichten.adl"        -- omdat we de structuur van de Nederlandse wetgeving nodig hebben.
-INCLUDE "Uittreksel.adl"       -- definieert verstrekkingen ten behoeve van ketenpartners.
-INCLUDE "JustGegevensPop.xlsx"  -- 
+INCLUDE "Portaal.adl"           -- 
+INCLUDE "Berichtencentrum.adl"           -- 
+INCLUDE "Autorisatie.adl"           -- 
+INCLUDE "Abonnementen.adl"           -- 
+INCLUDE "Opdrachtenadministratie.adl"           -- 
+INCLUDE "InformatieproductenAssemblage.adl"           -- 
+INCLUDE "VerstrekkingenAdministratie.adl"        -- omdat we de structuur van de regels ten aanzien van verstrekkingen.
+INCLUDE "AfnamesAdministratie.adl"           -- 
+INCLUDE "Informatieproductencatalogus.adl"           -- 
+INCLUDE "WettelijkeKadersAdministratie.adl"           -- omdat we de structuur van de Nederlandse wetgeving nodig hebben.
+INCLUDE "JDSregister.adl"           -- 
+INCLUDE "Monitoring.adl"           -- 
+INCLUDE "Logging.adl"           -- 
+INCLUDE "Procesbesturing.adl"           -- 
+
+INCLUDE "BjsgArtikel4.adl"  -- voor de overtredingssoorten die als justitiële gegevens aangemerkt worden.
 
 CONCEPT Sepot "Onder sepot wordt verstaan de beslissing van het openbaar ministerie tot niet vervolging of niet verdere vervolging van de zaak."
 
-REPRESENT Tekst TYPE BIGALPHANUMERIC -- Temporary for prototyping
+PURPOSE PATTERN "Zaken"
+{+Het systeem JDS zien we als een opslagstructuur van zaken en feiten.
+Dit hoofdstuk werkt de structuur van zaken uit, ten behoeve van justitiële documentatie.
++}
+PATTERN "Zaken"
+RELATION justitiabele[Zaak*Persoon]
+RELATION parket[Zaak*Parket]  -- Artikel 7 lid 2 sub a. Bjsg
+MEANING "het arrondissementsparket of ressortsparket dat de zaak in behandeling heeft genomen"
+RELATION ontvangstParket[ProcesVerbaal*Gebeurtenis] [INJ]  -- zie Artikel 7 lid 2 sub b. Bjsg
+PURPOSE RELATION inBehandeling[ProcesVerbaal*Gebeurtenis]
+{+Met betrekking tot de in Artikel 4 lid 2 Bjsg genoemde overtredingen worden de in de artikelen 6 en 7 Bjsg vermelde gegevens van zaken als justitiële gegevens aangemerkt nadat het proces-verbaal door het openbaar ministerie in behandeling is genomen.
+Om die reden dient het in behandeling nemen van een proces verbaal door het OM zonder uitstel als gebeurtenis geregistreerd te worden.
++}
+RELATION inBehandeling[ProcesVerbaal*Gebeurtenis] [UNI]  -- zie Artikel 4 lid 1. Bjsg
+MEANING "de datum waarop het openbaar ministerie de zaak in behandeling heeft genomen"
+RELATION inBehandelingPG[ProcesVerbaal*Gebeurtenis] [UNI]  -- zie Artikel 7 lid 2 sub c. Bjsg
+MEANING "de datum waarop de procureur-generaal bij de Hoge Raad op grond van artikel 76 van de Wet op de rechterlijke organisatie de zaak in behandeling heeft genomen"
+PURPOSE RELATION procesVerbaal[Zaak*ProcesVerbaal]
+{+Het systeem registreert de relatie tussen een proces-verbaal en de zaak die daaruit voortvloeit.
+Zodra deze relatie is gelegd is er een zaak en geldt (voor het systeem) dat het openbaar ministerie het proces-verbaal in behandeling heeft genomen.
++}
+CLASSIFY ProcesVerbaal ISA Document
+RELATION procesVerbaal[Zaak*ProcesVerbaal] [INJ]  -- zie Artikel 4 lid 1 Bjsg
+PRAGMA "Het OM heeft zaak " " op basis van PV " " in behandeling genomen."
+MEANING "Van alle zaken, die het OM in behandeling neemt, registreert het systeem op basis van welk PV dit is geschied."
+RELATION inBehandeling[ProcesVerbaal*Gebeurtenis] [UNI]  -- zie Artikel 4 lid 1. Bjsg
+MEANING "de datum waarop het openbaar ministerie de zaak in behandeling heeft genomen"
+PURPOSE RELATION procesVerbaal[Zaak*ProcesVerbaal]
+{+Zodra de relatie tussen een proces-verbaal en de zaak is gelegd, geldt (voor het systeem) dat het openbaar ministerie het proces-verbaal in behandeling heeft genomen.
+Indien nodig wordt deze gebeurtenis geregistreerd en aan het proces-verbaal gekoppeld via de relatie inBehandeling, met de transactiedatum als datum van inbehandelingname.
++}
+RULE InBehandelingname : procesVerbaal~;procesVerbaal/\I |- inBehandeling;inBehandeling~
+VIOLATION ( TXT "{EX} NewStruct;Gebeurtenis"
+          , TXT ";inBehandeling;ProcesVerbaal;", SRC I, TXT ";Gebeurtenis;_NEW"
+          , TXT ";voorgedaan;Gebeurtenis;_NEW;Datum;{php}date(DATE_ISO8601)"
+          )
 
+ENDPATTERN
+
+
+PURPOSE PATTERN "Beslissingen"
+{+Het systeem JDS zien we als een opslagstructuur van zaken en feiten.
+Dit hoofdstuk werkt de structuur van zaken uit, ten behoeve van justitiële documentatie.
++}
+PATTERN "Beslissingen"
+RELATION zak_id[Beslissing*Zaak] [UNI]  -- zie Artikel 3 en 5 Bjsg
+MEANING "de zaak waarin een beslissing genomen, c.q. een beschikking uitgevaardigd is"
+RELATION nietVervolgd[Zaak*Beslissing]  -- zie Artikel 7 lid 1 Bjsg
+MEANING "Er is een beslissing tot niet vervolgen omdat de betrokken persoon ten onrechte als verdachte is aangemerkt, of na vaststelling van een rechtmatige geweldsaanwending van een ambtenaar als bedoeld in artikel 1, eerste lid, van de Ambtsinstructie voor de politie, de Koninklijke marechaussee en andere opsporingsambtenaren."
+RELATION gerecht[Beslissing*Gerecht] [UNI]  -- zie Artikel 7 lid 1 sub j. Bjsg
+RELATION parketnummer[Zaak*Parketnummer] [UNI,TOT,INJ]  -- Artikel 7 lid 1 sub b. Bjsg
+ENDPATTERN
 
 PATTERN "Bewijsmiddel"
 CLASSIFY Beschikking ISA Document
 RELATION bewijsmiddel[Feit*Document]  -- zie Artikel 3 en 5 Bjsg
 MEANING "Documenten, die als justitiële of strafvorderlijke gegevens zijn opgenomen in het systeem, en als bewijs gelden voor enig feit, worden in het systeem aan dat feit gekoppeld."
+ENDPATTERN
+
+
+PATTERN "Feiten"
+CLASSIFY Misdrijf ISA Feit
+CLASSIFY Overtreding ISA Feit
+CLASSIFY Beschikking ISA Beslissing
+CLASSIFY Sepot ISA Beslissing
+CLASSIFY RechterlijkeUitspraak ISA Beslissing
+CLASSIFY Beslissing ISA Gebeurtenis
+RELATION strafbaar[ProcesVerbaal*Feit]  -- Artikel 7 lid 1 sub c. Bjsg
+{- uitzoeken: wat is de juiste definitie van strafbaar feit. -}
+CLASSIFY Feit ISA Gebeurtenis
+{- 
+-}
+RELATION tav[Feit*Beslissing]
+MEANING "een feit waarover een beslissing genomen, c.q. een beschikking uitgevaardigd is"
+ROLE ExecEngine MAINTAINS "Beslissing over een feit bij de juiste zaak opbergen"
+RULE "Beslissing over een feit bij de juiste zaak opbergen":
+   procesVerbaal;strafbaar;tav |- zak_id~
+MEANING "Een beslissing ten aanzien van een feit heeft betrekking op de zaak waarin dat feit ten laste is gelegd."
+VIOLATION (TXT "{EX} InsPair;zak_id;Zaak;", TGT I, TXT ";Beslissing;", SRC I)
+
+PURPOSE RELATION afdoeningOM[Feit*Beschikking]
+{+De gebeurtenis dat het openbaar ministerie een beslissing tot afdoening van de zaak heeft genomen,
+dient geregistreerd te worden.
++}
+RELATION afdoeningOM[Feit*Beschikking]  -- Artikel 3 lid a. Bjsg
+PURPOSE RELATION lageBoete[Feit*Beschikking]
+{+Als het OM uitsluitend een geldboete oplegt die minder dan € 100,– beloopt,
+dan wordt dit geregistreerd omdat deze boetes niet tot de justitiële gegevens behoren.
++}
+RELATION lageBoete[Feit*Beschikking]  -- Artikel 3 lid a. Bjsg
+MEANING "Het OM heeft uitsluitend een geldboete opgelegd die minder dan € 100,– beloopt."
+RELATION hogeBoete[Feit*Beschikking]  -- Artikel 3 lid a. Bjsg
+MEANING "Het OM heeft een geldboete opgelegd die € 100,– of meer beloopt."
+
+RELATION bepaling[Beslissing*Tekst]  -- Artikel 8 lid 1 sub b. Bjsg
+MEANING "de aan een beslissing verbonden bepalingen"
+RELATION strafbepaling[Beslissing*Tekst]  -- Artikel 7 lid 1 sub c,h. Bjsg
+MEANING "de strafbepalingen van het strafbare feit, de opgelegde straffen, maatregelen en aanwijzingen"
+RELATION kwalificatie[Feit*Tekst] [UNI]  -- Artikel 7 lid 1 sub d. Bjsg
+RELATION maatschappelijkeClassificatie[Feit*Tekst] [UNI]  -- Artikel 7 lid 1 sub e. Bjsg
+RELATION voorgedaan[Gebeurtenis*Datum] [UNI]  -- Artikel 7 lid 1 sub f. Bjsg
+RELATION voorgedaan[Feit*Periode] [UNI]  -- Artikel 7 lid 1 sub f. Bjsg
+RELATION sepot[Feit*Sepot] [UNI]  -- Artikel 7 lid 1 sub g. Bjsg
+RELATION dt_beslissing[Beslissing*Datum] [UNI]  -- Artikel 7 lid 1 sub g,h. Bjsg
+MEANING "de datum waarop een beslissing genomen, c.q. een beschikking uitgevaardigd is"
+RELATION sepotcode[Sepot*Sepotcode] [UNI]  -- Artikel 7 lid 1 sub g. Bjsg
+RELATION grond[Sepot*Tekst]  -- Artikel 7 lid 1 sub g. Bjsg
+RELATION voorwaarde[Beslissing*Tekst]  -- Artikel 7 lid 1 sub g. Bjsg
+MEANING "de bij de beslissing tot voorwaardelijk seponeren gestelde voorwaarden"
+RELATION voldaan[Sepot*Datum] [UNI]  -- Artikel 7 lid 1 sub g. Bjsg
+MEANING "de datum waarop aan alle gestelde voorwaarden is voldaan"
+RELATION dt_onherroepelijk[Beslissing*Datum] [UNI]  -- Artikel 7 lid 1 sub h. Bjsg
+MEANING "de datum waarop waarop de strafbeschikking onherroepelijk is geworden"
+RELATION ogv[Beslissing*RechtsGrond]   -- Artikel 7 lid 1 sub h. Bjsg
+MEANING "een rechtsgrond waarop een beslissing is gebaseerd"
+RELATION uitgevoerd[Beslissing*Datum] [UNI]  -- Artikel 7 lid 1 sub h en k Bjsg
+MEANING "de datum waarop de beslissing volledig ten uitvoer is gelegd"
+RELATION wijze[Beslissing*Tekst] [UNI]  -- Artikel 7 lid 1 sub k Bjsg
+MEANING "de wijze waarop de beslissing ten uitvoer is gelegd"
+RELATION gemerkt101112[Beslissing*Datum] [UNI]  -- Artikel 7 lid 1 sub h en j. Bjsg
+MEANING "Als een datum bestaat in deze relatie, kan de strafbeschikking tot genoemde datum worden aangemerkt als een gegeven als bedoeld in de artikelen 10, 11 of 12 van de wet"
 ENDPATTERN
 
 
@@ -52,13 +171,9 @@ PURPOSE INTERFACE JustitieleGegevens
 {+Om de justitiële gegevens van een specifieke zaak te bepalen hanteren we hetgeen in Artikel 7 Bjsg is vermeld.
 De analyse is gebaseerd op BWBR0016544-geldend op 15-09-2017.
 +}
-INTERFACE JustitieleGegevens FOR JustidBeheerder : I[Zaak] cRud
-BOX [ Beslissingen : beslissing - nietVervolgd                                -- Artikel 7 lid 1 sub a Bjsg
-      BOX [ "bepalingen" : bepaling
-          , "strafbepalingen" : strafbepaling
-          , "voorwaarden" : voorwaarde
-          ]
-    , Parketnummer : parketnummer CRud                                        -- Artikel 7 lid 1 sub b Bjsg
+INTERFACE JustitiëleGegevens : I[Zaak]/\justitieel
+BOX [ Beslissingen : zak_id~ - nietVervolgd                                -- Artikel 7 lid 1 sub a Bjsg
+    , Parketnummer : parketnummer                                             -- Artikel 7 lid 1 sub b Bjsg
     , Parket : parket                                                         -- Artikel 7 lid 2 sub a Bjsg
     , "Proces-verbaal" : procesVerbaal
       BOX [ "Ontvangen op parket" : ontvangstParket;voorgedaan                -- Artikel 7 lid 2 sub b Bjsg
@@ -71,23 +186,22 @@ BOX [ Beslissingen : beslissing - nietVervolgd                                --
           , datum : voorgedaan[Gebeurtenis*Datum]                             -- Artikel 7 lid 1 sub f Bjsg
           , periode : voorgedaan[Feit*Periode]                                -- Artikel 7 lid 1 sub f Bjsg
           , sepot : sepot                                                     -- Artikel 7 lid 1 sub g Bjsg
-            BOX [ datum : datum
+            BOX [ datum : dt_beslissing
                 , sepotcode : sepotcode
                 , grond : grond
                 , "gestelde voorwaarden" : voorwaarde
                 , "aan alles voldaan per (datum)" : voldaan
                 ]
           , "bij beschikking" : tav;I[Beschikking]                            -- Artikel 7 lid 1 sub h Bjsg
-            BOX [ datum : datum
+            BOX [ datum : dt_beslissing
                 , "opgelegde straffen, maatregelen en aanwijzingen" : strafbepaling
-                , "onherroepelijk per (datum)" : onherroepelijk
+                , "onherroepelijk per (datum)" : dt_onherroepelijk
                 , "uitgevoerd per (datum)" : uitgevoerd
                 , "Art. 10, 11, of 12 tot (datum)" : gemerkt101112
                 ]
           ]
-    , "Strafbepaling(en)" : procesVerbaal;strafbaar;tav;strafbepaling                               -- Artikel 7 lid 1 sub c Bjsg
-    , "voorlopige maatregel op grond van de WED" : beslissing;(I[Beslissing]/\ogv;regeling;bwb;"BWBR0002063";(ogv;regeling;bwb)~);maatregel                           -- Artikel 7 lid 1 sub i Bjsg
-      BOX [ datum : maatregel~;datum
+    , "voorlopige maatregel op grond van de WED" : zak_id~;(I[Beslissing]/\ogv;regeling;bwb;"BWBR0002063";(ogv;regeling;bwb)~);maatregel                           -- Artikel 7 lid 1 sub i Bjsg
+      BOX [ datum : maatregel~;dt_beslissing
           , aanduiding : aanduiding
           , beëindiging : beeindiging
           , verlenging : verlenging
@@ -95,17 +209,17 @@ BOX [ Beslissingen : beslissing - nietVervolgd                                --
           , intrekking : intrekking
           , opheffing : opheffing
           ]
-    , "rechterlijke uitspraken" : beslissing;I[RechterlijkeUitspraak]          -- Artikel 7 lid 1 sub j Bjsg
+    , "rechterlijke uitspraak" : zak_id~;I[RechterlijkeUitspraak]          -- Artikel 7 lid 1 sub j Bjsg
       BOX [ gerecht : gerecht
-          , datum : datum
+          , datum : dt_beslissing
           , kwalificatie : tav~;kwalificatie
           , strafbepalingen : strafbepaling
           , voorwaarden : voorwaarde
-          , "onherroepelijk per (datum)" : onherroepelijk
+          , "onherroepelijk per (datum)" : dt_onherroepelijk
           , "vermoedelijke einde van een proeftijd" : maatregel;eindeProeftijd
           , "Art. 10, 11, of 12 tot (datum)" : gemerkt101112
           ]
-    , "ten uitvoer gelegde maatregelen" : beslissing;(I[RechterlijkeUitspraak]/\uitgevoerd;uitgevoerd~);maatregel  -- Artikel 7 lid 1 sub k Bjsg
+    , "ten uitvoer is gelegd" : zak_id~;(I[RechterlijkeUitspraak]/\uitgevoerd;uitgevoerd~);maatregel  -- Artikel 7 lid 1 sub k Bjsg
       BOX [ "uitgevoerd per (datum)" : maatregel~;uitgevoerd
           , wijze : aanduiding
           , aangevangen : aanvang
